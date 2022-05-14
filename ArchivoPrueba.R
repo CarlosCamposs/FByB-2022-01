@@ -5,6 +5,7 @@ library(shinythemes)
 library(xts)
 library(TTR)
 library(quantmod)
+library(dplyr)
 #------------------------------------------------------------------------------
 #definimos el ui para la app
 
@@ -17,7 +18,7 @@ ui<-fluidPage( theme = shinytheme("flatly"),
                                
                                selectInput(inputId = "Stock", 
                                            label = h2("Elegir acción:"),
-                                           choices = c("NKE","F","TSLA", "WOOF"), selected = "NKE"),#selectinput
+                                           choices = c("NKE","MDLZ","MU", "KMB","T","AMZN"), selected = "NKE"),#selectinput
                                
                                radioButtons(inputId="period", label=h4("Periodicidad"), 
                                             choices=c("Diario","Semanal","Mensual") ,selected = "Diario"),#radiobutton1
@@ -27,7 +28,8 @@ ui<-fluidPage( theme = shinytheme("flatly"),
                                                       "Último año","Últimos 3 años","Últimos 5 años",
                                                       "Últimos 10 años"),selected = "Este año"),#radiobutton2
                                
-                               checkboxGroupInput(inputId = "ind", label = h4("Escoger indicadores a visualizar"), choices = c("VOL","SMA","EMA","RSI","MACD","ATR","BB") )
+                               checkboxGroupInput(inputId = "ind", label = h4("Escoger indicadores a visualizar"),
+                                                  choices = c("Vo","SMA","EMA","ROC","RSI","MACD","ATR","BBands"),selected = NA )#checkbox
                              ), #sidebar 
                              
                              mainPanel(
@@ -83,9 +85,70 @@ server<-function(input,output){
     }else{ tf<- "2022"}
     
     chartSeries( dataInput() ,typle="candle",
-                 subset = tf ,theme=chartTheme("white",up.col="Green",dn.col="Red"),name = input$Stock ,TA=NULL) #la madre del env stock jala los datos
+                 subset = tf ,theme=chartTheme("white",up.col="Green",dn.col="Red"),name = input$Stock ,TA=NULL )  #la madre del env stock jala los datos
     
-  },width = 1200 ,height = 800 ) 
+    # if para ir metiendo indicadores
+    
+    if( "Vo" %in% input$ind ){
+       
+    print( addVo() )
+    
+    }#if
+
+    if("SMA" %in% input$ind){
+      print(addSMA(col = "Blue"))
+    } # los if solo funcionan para el ultimo ciclo wtf
+    
+    if( "EMA" %in% input$ind ){
+      
+      print( addEMA( col="coral4") )
+      
+    }
+    
+    if( "ROC" %in% input$ind ){
+      
+      print( addROC(col = "deeppink") )
+      
+    }
+    
+    if( "RSI" %in% input$ind ){
+      
+      print( addRSI() )
+      
+    }
+    
+    if( "MACD" %in% input$ind ){
+      
+      print( addMACD( col = c("green","red","blue", "black") ) )
+      
+    }
+    
+    if( "ATR" %in% input$ind ){
+      
+      print( addATR() )
+      
+    }
+    
+    if( "BBands" %in% input$ind ){
+      
+      print( addBBands() )
+      
+    }
+    
+    
+        
+    #indicadores<- paste(input$ind, collapse = ", ")
+    
+    #case_when(
+    #  as.logical("Vo" %in% input$ind) ~ print( addVo()),
+    #  as.logical("SMA" %in% input$ind)~ print (addSMA())
+    #)
+    
+    
+    
+    
+    },width = 1250 ,height = 800 ) #renderplot 
+    
   
 }
 
