@@ -9,7 +9,7 @@ library(dplyr)
 #------------------------------------------------------------------------------
 #definimos el ui para la app
 
-ui<-fluidPage( theme = shinytheme("flatly"),
+ui<-fluidPage( theme = shinytheme("darkly"),
                
                titlePanel("Análisis Técnico en R"),
                
@@ -27,10 +27,13 @@ ui<-fluidPage( theme = shinytheme("flatly"),
                                             choices=c("Este año","Últimos 3 meses","Últimos 6 meses",
                                                       "Último año","Últimos 3 años","Últimos 5 años",
                                                       "Últimos 10 años"),selected = "Este año"),#radiobutton2
+                               numericInput(inputId = "tsma",label = h5("Periodos SMA") , value = 14 , min = 8, max = 200 ),#num input
+                               
+                               numericInput(inputId = "tema",label = h5("Periodos EMA") , value = 14 , min = 8, max = 200 ),#num input
                                
                                checkboxGroupInput(inputId = "ind", label = h4("Escoger indicadores a visualizar"),
-                                                  choices = c("Vo","SMA","EMA","ROC","RSI","MACD","ATR","BBands"),selected = NA )#checkbox
-                             ), #sidebar 
+                                                  choices = c("Volumen","SMA","EMA","ROC","RSI","MACD","ATR","BBands"),selected = NA ),#checkbox
+                           width = 2  ), #sidebar 
                              
                              mainPanel(
                                
@@ -89,19 +92,19 @@ server<-function(input,output){
     
     # if para ir metiendo indicadores
     
-    if( "Vo" %in% input$ind ){
+    if( "Volumen" %in% input$ind ){
        
     print( addVo() )
     
     }#if
 
     if("SMA" %in% input$ind){
-      print(addSMA(col = "Blue"))
+      print(addSMA(n=input$tsma,col = "Blue"))
     } # los if solo funcionan para el ultimo ciclo wtf
     
     if( "EMA" %in% input$ind ){
       
-      print( addEMA( col="coral4") )
+      print( addEMA(n=input$tema, col="coral4") )
       
     }
     
@@ -147,7 +150,7 @@ server<-function(input,output){
     
     
     
-    },width = 1250 ,height = 800 ) #renderplot 
+    },width = 1550 ,height = 900 ) #renderplot 
     
   
 }
